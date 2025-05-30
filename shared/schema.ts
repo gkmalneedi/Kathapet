@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -39,6 +40,18 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertArticle = z.infer<typeof insertArticleSchema>;
 export type Article = typeof articles.$inferSelect;
+
+// Relations
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  articles: many(articles),
+}));
+
+export const articlesRelations = relations(articles, ({ one }) => ({
+  category: one(categories, {
+    fields: [articles.categoryId],
+    references: [categories.id],
+  }),
+}));
 
 export type ArticleWithCategory = Article & {
   category: Category;

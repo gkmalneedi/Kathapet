@@ -1,4 +1,6 @@
 import { categories, articles, type Category, type Article, type InsertCategory, type InsertArticle, type ArticleWithCategory } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // Categories
@@ -14,6 +16,174 @@ export interface IStorage {
   getBreakingNews(limit?: number): Promise<ArticleWithCategory[]>;
   createArticle(article: InsertArticle): Promise<Article>;
   getTotalArticlesCount(categoryId?: number): Promise<number>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories);
+  }
+
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.slug, slug));
+    return category || undefined;
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [category] = await db
+      .insert(categories)
+      .values(insertCategory)
+      .returning();
+    return category;
+  }
+
+  async getArticles(limit = 50, offset = 0, categoryId?: number): Promise<ArticleWithCategory[]> {
+    let query = db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        content: articles.content,
+        imageUrl: articles.imageUrl,
+        categoryId: articles.categoryId,
+        author: articles.author,
+        isBreaking: articles.isBreaking,
+        isFeatured: articles.isFeatured,
+        publishedAt: articles.publishedAt,
+        createdAt: articles.createdAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          color: categories.color,
+          description: categories.description,
+        },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .orderBy(desc(articles.publishedAt))
+      .limit(limit)
+      .offset(offset);
+
+    if (categoryId) {
+      query = query.where(eq(articles.categoryId, categoryId));
+    }
+
+    return await query;
+  }
+
+  async getArticleBySlug(slug: string): Promise<ArticleWithCategory | undefined> {
+    const [result] = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        content: articles.content,
+        imageUrl: articles.imageUrl,
+        categoryId: articles.categoryId,
+        author: articles.author,
+        isBreaking: articles.isBreaking,
+        isFeatured: articles.isFeatured,
+        publishedAt: articles.publishedAt,
+        createdAt: articles.createdAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          color: categories.color,
+          description: categories.description,
+        },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(eq(articles.slug, slug));
+
+    return result || undefined;
+  }
+
+  async getArticlesByCategory(categoryId: number, limit = 50, offset = 0): Promise<ArticleWithCategory[]> {
+    return this.getArticles(limit, offset, categoryId);
+  }
+
+  async getFeaturedArticles(limit = 6): Promise<ArticleWithCategory[]> {
+    return await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        content: articles.content,
+        imageUrl: articles.imageUrl,
+        categoryId: articles.categoryId,
+        author: articles.author,
+        isBreaking: articles.isBreaking,
+        isFeatured: articles.isFeatured,
+        publishedAt: articles.publishedAt,
+        createdAt: articles.createdAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          color: categories.color,
+          description: categories.description,
+        },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(eq(articles.isFeatured, true))
+      .orderBy(desc(articles.publishedAt))
+      .limit(limit);
+  }
+
+  async getBreakingNews(limit = 3): Promise<ArticleWithCategory[]> {
+    return await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        content: articles.content,
+        imageUrl: articles.imageUrl,
+        categoryId: articles.categoryId,
+        author: articles.author,
+        isBreaking: articles.isBreaking,
+        isFeatured: articles.isFeatured,
+        publishedAt: articles.publishedAt,
+        createdAt: articles.createdAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          color: categories.color,
+          description: categories.description,
+        },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(eq(articles.isBreaking, true))
+      .orderBy(desc(articles.publishedAt))
+      .limit(limit);
+  }
+
+  async createArticle(insertArticle: InsertArticle): Promise<Article> {
+    const [article] = await db
+      .insert(articles)
+      .values(insertArticle)
+      .returning();
+    return article;
+  }
+
+  async getTotalArticlesCount(categoryId?: number): Promise<number> {
+    let query = db.select().from(articles);
+    
+    if (categoryId) {
+      query = query.where(eq(articles.categoryId, categoryId));
+    }
+    
+    const result = await query;
+    return result.length;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -366,4 +536,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
