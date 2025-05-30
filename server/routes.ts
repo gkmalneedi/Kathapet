@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { insertArticleSchema, insertCategorySchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories
@@ -93,6 +94,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(articles);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch breaking news" });
+    }
+  });
+
+  // Create new article
+  app.post("/api/articles", async (req, res) => {
+    try {
+      const validatedData = insertArticleSchema.parse(req.body);
+      const article = await storage.createArticle(validatedData);
+      res.status(201).json(article);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid article data" });
+    }
+  });
+
+  // Update article
+  app.put("/api/articles/:id", async (req, res) => {
+    try {
+      const validatedData = insertArticleSchema.parse(req.body);
+      const article = await storage.updateArticle(parseInt(req.params.id), validatedData);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      res.json(article);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid article data" });
+    }
+  });
+
+  // Delete article
+  app.delete("/api/articles/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteArticle(parseInt(req.params.id));
+      if (!success) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete article" });
+    }
+  });
+
+  // Create new category
+  app.post("/api/categories", async (req, res) => {
+    try {
+      const validatedData = insertCategorySchema.parse(req.body);
+      const category = await storage.createCategory(validatedData);
+      res.status(201).json(category);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid category data" });
+    }
+  });
+
+  // Update category
+  app.put("/api/categories/:id", async (req, res) => {
+    try {
+      const validatedData = insertCategorySchema.parse(req.body);
+      const category = await storage.updateCategory(parseInt(req.params.id), validatedData);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      res.json(category);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid category data" });
+    }
+  });
+
+  // Delete category
+  app.delete("/api/categories/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteCategory(parseInt(req.params.id));
+      if (!success) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete category" });
     }
   });
 

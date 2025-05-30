@@ -7,6 +7,8 @@ export interface IStorage {
   getCategories(): Promise<Category[]>;
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, category: InsertCategory): Promise<Category | undefined>;
+  deleteCategory(id: number): Promise<boolean>;
 
   // Articles
   getArticles(limit?: number, offset?: number, categoryId?: number): Promise<ArticleWithCategory[]>;
@@ -15,6 +17,8 @@ export interface IStorage {
   getFeaturedArticles(limit?: number): Promise<ArticleWithCategory[]>;
   getBreakingNews(limit?: number): Promise<ArticleWithCategory[]>;
   createArticle(article: InsertArticle): Promise<Article>;
+  updateArticle(id: number, article: InsertArticle): Promise<Article | undefined>;
+  deleteArticle(id: number): Promise<boolean>;
   getTotalArticlesCount(categoryId?: number): Promise<number>;
 }
 
@@ -183,6 +187,34 @@ export class DatabaseStorage implements IStorage {
     
     const result = await query;
     return result.length;
+  }
+
+  async updateCategory(id: number, insertCategory: InsertCategory): Promise<Category | undefined> {
+    const [category] = await db
+      .update(categories)
+      .set(insertCategory)
+      .where(eq(categories.id, id))
+      .returning();
+    return category || undefined;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    const result = await db.delete(categories).where(eq(categories.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async updateArticle(id: number, insertArticle: InsertArticle): Promise<Article | undefined> {
+    const [article] = await db
+      .update(articles)
+      .set(insertArticle)
+      .where(eq(articles.id, id))
+      .returning();
+    return article || undefined;
+  }
+
+  async deleteArticle(id: number): Promise<boolean> {
+    const result = await db.delete(articles).where(eq(articles.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 }
 

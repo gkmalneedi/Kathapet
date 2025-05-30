@@ -12,6 +12,7 @@ const navigation = [
   { name: "Lifestyle", href: "/category/lifestyle" },
   { name: "Sports", href: "/category/sports" },
   { name: "Technology", href: "/category/technology" },
+  { name: "Admin", href: "/admin" },
 ];
 
 export function Header() {
