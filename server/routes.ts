@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { adminStorage } from "./admin-storage";
-import { insertArticleSchema, insertCategorySchema, insertPageSchema, insertSocialSettingSchema, insertSiteSettingSchema } from "@shared/schema";
+import { insertArticleSchema, insertCategorySchema, insertPageSchema, insertSocialSettingSchema, insertSiteSettingSchema, insertMediaSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories
@@ -433,6 +433,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(enabledSettings);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch social settings" });
+    }
+  });
+
+  // Admin Media Management
+  app.get("/api/admin/media", async (req, res) => {
+    try {
+      const media = await adminStorage.getMedia();
+      res.json(media);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch media" });
+    }
+  });
+
+  app.get("/api/admin/media/:id", async (req, res) => {
+    try {
+      const media = await adminStorage.getMediaById(parseInt(req.params.id));
+      if (!media) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      res.json(media);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch media" });
+    }
+  });
+
+  app.post("/api/admin/media", async (req, res) => {
+    try {
+      const validatedData = insertMediaSchema.parse(req.body);
+      const media = await adminStorage.createMedia(validatedData);
+      res.status(201).json(media);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid media data" });
+    }
+  });
+
+  app.delete("/api/admin/media/:id", async (req, res) => {
+    try {
+      const success = await adminStorage.deleteMedia(parseInt(req.params.id));
+      if (!success) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete media" });
+    }
+  });
+
+  // Media upload endpoint (placeholder for file upload)
+  app.post("/api/admin/media/upload", async (req, res) => {
+    try {
+      // For now, return a mock response
+      // In a real implementation, you would handle file upload here
+      res.status(501).json({ 
+        message: "File upload not implemented. Please use 'Add URL' to add media by providing direct URLs." 
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to upload file" });
     }
   });
 
