@@ -1,268 +1,140 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Edit, Trash2, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { apiRequest } from "@/lib/queryClient";
-import { ArticleForm } from "@/components/ArticleForm";
-import { CategoryForm } from "@/components/CategoryForm";
-import type { Category, ArticleWithCategory } from "@shared/schema";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus, Settings, FileText, Menu, Share2, Image } from "lucide-react";
+
+// Admin Components
+import { ArticleManagement } from "@/components/admin/ArticleManagement";
+import { CategoryManagement } from "@/components/admin/CategoryManagement";
+import { PageManagement } from "@/components/admin/PageManagement";
+import { SocialManagement } from "@/components/admin/SocialManagement";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export default function AdminPage() {
-  const [selectedArticle, setSelectedArticle] = useState<ArticleWithCategory | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [showArticleForm, setShowArticleForm] = useState(false);
-  const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const queryClient = useQueryClient();
-
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
-  });
-
-  const { data: articlesData } = useQuery<{ articles: ArticleWithCategory[] }>({
-    queryKey: ["/api/articles?limit=100"],
-  });
-
-  const deleteArticleMutation = useMutation({
-    mutationFn: async (articleId: number) => {
-      return apiRequest(`/api/articles/${articleId}`, {
-        method: "DELETE",
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
-    },
-  });
-
-  const deleteCategoryMutation = useMutation({
-    mutationFn: async (categoryId: number) => {
-      return apiRequest(`/api/categories/${categoryId}`, {
-        method: "DELETE",
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-    },
-  });
-
-  const handleEditArticle = (article: ArticleWithCategory) => {
-    setSelectedArticle(article);
-    setShowArticleForm(true);
-  };
-
-  const handleEditCategory = (category: Category) => {
-    setSelectedCategory(category);
-    setShowCategoryForm(true);
-  };
-
-  const handleDeleteArticle = (articleId: number) => {
-    if (confirm("Are you sure you want to delete this article?")) {
-      deleteArticleMutation.mutate(articleId);
-    }
-  };
-
-  const handleDeleteCategory = (categoryId: number) => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      deleteCategoryMutation.mutate(categoryId);
-    }
-  };
-
-  const timeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) {
-      return "Just now";
-    } else if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-    } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-    }
-  };
+  const [activeTab, setActiveTab] = useState("articles");
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Content Management System</h1>
-          <p className="text-gray-600 mt-2">Manage your news portal content</p>
+      <div className="border-b bg-white">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">CMS Admin Panel</h1>
+            <div className="flex items-center space-x-4">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="articles" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="articles">Articles</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
+      <div className="container mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="articles" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Articles
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="flex items-center gap-2">
+              <Menu className="h-4 w-4" />
+              Categories
+            </TabsTrigger>
+            <TabsTrigger value="pages" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Pages
+            </TabsTrigger>
+            <TabsTrigger value="social" className="flex items-center gap-2">
+              <Share2 className="h-4 w-4" />
+              Social
+            </TabsTrigger>
+            <TabsTrigger value="media" className="flex items-center gap-2">
+              <Image className="h-4 w-4" />
+              Media
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="articles" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Articles</h2>
-              <Button
-                onClick={() => {
-                  setSelectedArticle(null);
-                  setShowArticleForm(true);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Article
-              </Button>
-            </div>
-
-            <div className="grid gap-4">
-              {articlesData?.articles.map((article) => (
-                <Card key={article.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge
-                            style={{ backgroundColor: article.category.color }}
-                            className="text-white"
-                          >
-                            {article.category.name}
-                          </Badge>
-                          {article.isBreaking && (
-                            <Badge className="bg-red-600">Breaking</Badge>
-                          )}
-                          {article.isFeatured && (
-                            <Badge className="bg-blue-600">Featured</Badge>
-                          )}
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {article.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                          {article.excerpt}
-                        </p>
-                        <div className="flex items-center text-xs text-gray-500 space-x-4">
-                          <span>By {article.author}</span>
-                          <span>{timeAgo(article.publishedAt!)}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open(`/article/${article.slug}`, '_blank')}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditArticle(article)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteArticle(article.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <TabsContent value="articles">
+            <Card>
+              <CardHeader>
+                <CardTitle>Article Management</CardTitle>
+                <CardDescription>
+                  Create, edit, and manage news articles with rich content editing capabilities
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ArticleManagement />
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          <TabsContent value="categories" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Categories</h2>
-              <Button
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setShowCategoryForm(true);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Category
-              </Button>
-            </div>
+          <TabsContent value="categories">
+            <Card>
+              <CardHeader>
+                <CardTitle>Category Management</CardTitle>
+                <CardDescription>
+                  Manage news categories and control which categories appear in the main navigation menu
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CategoryManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {categories.map((category) => (
-                <Card key={category.id}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div
-                          className="w-4 h-4 rounded"
-                          style={{ backgroundColor: category.color }}
-                        />
-                        <CardTitle className="text-lg">{category.name}</CardTitle>
-                      </div>
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditCategory(category)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteCategory(category.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-                    <p className="text-xs text-gray-500">Slug: {category.slug}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <TabsContent value="pages">
+            <Card>
+              <CardHeader>
+                <CardTitle>Page Management</CardTitle>
+                <CardDescription>
+                  Create and manage static pages like About Us, Privacy Policy, Terms & Conditions, and Contact Us
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PageManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="social">
+            <Card>
+              <CardHeader>
+                <CardTitle>Social Media Settings</CardTitle>
+                <CardDescription>
+                  Configure social media icons and links that appear on your website
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SocialManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="media">
+            <Card>
+              <CardHeader>
+                <CardTitle>Media Library</CardTitle>
+                <CardDescription>
+                  Upload and manage images, videos, and other media files for your articles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Image className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium mb-2">Media Management</h3>
+                  <p className="text-gray-600 mb-4">Upload and organize your media files</p>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Upload Media
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
-      </main>
-
-      {/* Article Form Modal */}
-      {showArticleForm && (
-        <ArticleForm
-          article={selectedArticle}
-          categories={categories}
-          onClose={() => {
-            setShowArticleForm(false);
-            setSelectedArticle(null);
-          }}
-          onSuccess={() => {
-            setShowArticleForm(false);
-            setSelectedArticle(null);
-            queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
-          }}
-        />
-      )}
-
-      {/* Category Form Modal */}
-      {showCategoryForm && (
-        <CategoryForm
-          category={selectedCategory}
-          onClose={() => {
-            setShowCategoryForm(false);
-            setSelectedCategory(null);
-          }}
-          onSuccess={() => {
-            setShowCategoryForm(false);
-            setSelectedCategory(null);
-            queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-          }}
-        />
-      )}
+      </div>
     </div>
   );
 }
