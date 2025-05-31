@@ -6,9 +6,9 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navigation = [
   { name: "Political", href: "/category/political" },
-  { name: "Movie News", href: "/category/movie-news" },
+  { name: "Movies", href: "/category/movies" },
   { name: "Facts", href: "/category/facts" },
-  { name: "Life Style", href: "/category/life-style" },
+  { name: "Lifestyle", href: "/category/lifestyle" },
   { name: "Biographies", href: "/category/biographies" },
   { name: "Love Stories", href: "/category/love-stories" },
   { name: "Sports", href: "/category/sports" },
@@ -25,8 +25,11 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <Newspaper className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">NewsHub</span>
+            <img 
+              src="/attached_assets/Kathapet v2 copy.png" 
+              alt="KathaPet Logo" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
