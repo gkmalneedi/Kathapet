@@ -62,11 +62,13 @@ export function ArticleManagement() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertArticle) => {
-      return await apiRequest("/api/admin/articles", {
+      const response = await fetch("/api/admin/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error('Failed to create article');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/articles"] });
@@ -81,11 +83,13 @@ export function ArticleManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertArticle> }) => {
-      return await apiRequest(`/api/admin/articles/${id}`, {
+      const response = await fetch(`/api/admin/articles/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error('Failed to update article');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/articles"] });
@@ -101,9 +105,11 @@ export function ArticleManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/admin/articles/${id}`, {
+      const response = await fetch(`/api/admin/articles/${id}`, {
         method: "DELETE",
       });
+      if (!response.ok) throw new Error('Failed to delete article');
+      return response.ok;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/articles"] });
@@ -256,7 +262,7 @@ export function ArticleManagement() {
                 <Label>Content *</Label>
                 <RichTextEditor
                   value={formData.content}
-                  onChange={(content) => setFormData({ ...formData, content })}
+                  onChange={(content: string) => setFormData({ ...formData, content })}
                 />
               </div>
 
