@@ -66,7 +66,7 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
     { icon: Type, action: () => insertText("# ", "", "Heading"), tooltip: "Heading" },
     { icon: List, action: () => insertText("- ", "", "List item"), tooltip: "Bullet List" },
     { icon: ListOrdered, action: () => insertText("1. ", "", "List item"), tooltip: "Numbered List" },
-    { icon: Separator, action: () => insertText("\n---\n"), tooltip: "Horizontal Rule" },
+    { icon: Minus, action: () => insertText("\n---\n"), tooltip: "Horizontal Rule" },
   ];
 
   const mediaButtons = [
