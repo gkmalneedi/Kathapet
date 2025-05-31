@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Category, ArticleWithCategory } from "@shared/schema";
 
-const ARTICLES_PER_PAGE = 12;
+const ARTICLES_PER_PAGE = 20;
 
 export default function CategoryPage() {
   const params = useParams();

@@ -56,7 +56,7 @@ export function HeroCarousel() {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-            <div className="absolute inset-0 flex items-center">
+            <Link href={`/article/${article.slug}`} className="absolute inset-0 flex items-center cursor-pointer group">
               <div className="container mx-auto px-4">
                 <div className="max-w-3xl">
                   <Badge
@@ -66,20 +66,18 @@ export function HeroCarousel() {
                   >
                     {article.category.name}
                   </Badge>
-                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight group-hover:text-blue-200 transition-colors">
                     {article.title}
                   </h1>
                   <p className="text-xl text-gray-200 mb-6">
                     {article.excerpt}
                   </p>
-                  <Link href={`/article/${article.slug}`}>
-                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                      Read Full Story
-                    </Button>
-                  </Link>
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                    Read Full Story
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         ))}
 

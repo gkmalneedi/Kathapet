@@ -22,8 +22,9 @@ export default function Home() {
 
   // Group articles by category (6 articles per category for homepage)
   const articlesByCategory = categories.reduce((acc, category) => {
-    acc[category.id] = (allArticles.articles || [])
-      .filter(article => article.categoryId === category.id)
+    const articles = Array.isArray(allArticles) ? allArticles : (allArticles?.articles || []);
+    acc[category.id] = articles
+      .filter((article: ArticleWithCategory) => article.categoryId === category.id)
       .slice(0, 6);
     return acc;
   }, {} as Record<number, ArticleWithCategory[]>);
