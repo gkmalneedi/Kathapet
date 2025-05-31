@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Eye } from "lucide-react";
 import type { ArticleWithCategory } from "@shared/schema";
 
 interface ArticleCardProps {
@@ -8,7 +9,7 @@ interface ArticleCardProps {
   showCategory?: boolean;
 }
 
-export function ArticleCard({ article, showCategory = true }: ArticleCardProps) {
+export function ArticleCard({ article, showCategory = false }: ArticleCardProps) {
   const timeAgo = (date: Date) => {
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60));
@@ -39,15 +40,6 @@ export function ArticleCard({ article, showCategory = true }: ArticleCardProps) 
           )}
         </div>
         <CardContent className="p-5">
-          {showCategory && (
-            <Badge
-              variant="secondary"
-              className="mb-2"
-              style={{ backgroundColor: article.category.color, color: 'white' }}
-            >
-              {article.category.name}
-            </Badge>
-          )}
           <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
             {article.title}
           </h3>
@@ -55,7 +47,13 @@ export function ArticleCard({ article, showCategory = true }: ArticleCardProps) 
             {article.excerpt}
           </p>
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>By {article.author}</span>
+            <div className="flex items-center space-x-4">
+              <span>By {article.author}</span>
+              <div className="flex items-center space-x-1">
+                <Eye className="h-3 w-3" />
+                <span>{article.views || 0} views</span>
+              </div>
+            </div>
             <span>{timeAgo(article.publishedAt!)}</span>
           </div>
         </CardContent>

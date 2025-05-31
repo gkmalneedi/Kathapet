@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { CategorySection } from "@/components/CategorySection";
 import { AdSpace } from "@/components/AdSpace";
-import { Newsletter } from "@/components/Newsletter";
 import { initializeMockData } from "@/lib/mockData";
 import type { Category, ArticleWithCategory } from "@shared/schema";
 
@@ -48,7 +47,9 @@ export default function Home() {
           </div>
         ))}
         
-        <Newsletter />
+        {/* Additional Ad Spaces */}
+        <AdSpace className="mb-8" />
+        <AdSpace size="rectangle" className="mb-8" />
       </main>
     </div>
   );

@@ -1,32 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Menu, X, Newspaper } from "lucide-react";
+import { Menu, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navigation = [
-  { name: "Home", href: "/" },
   { name: "Political", href: "/category/political" },
-  { name: "Movies", href: "/category/movies" },
-  { name: "Lifestyle", href: "/category/lifestyle" },
+  { name: "Movie News", href: "/category/movie-news" },
+  { name: "Facts", href: "/category/facts" },
+  { name: "Life Style", href: "/category/life-style" },
+  { name: "Biographies", href: "/category/biographies" },
+  { name: "Love Stories", href: "/category/love-stories" },
   { name: "Sports", href: "/category/sports" },
   { name: "Technology", href: "/category/technology" },
-  { name: "Admin", href: "/admin" },
 ];
 
 export function Header() {
   const [location] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      console.log("Search for:", searchQuery);
-      // Implement search functionality
-    }
-  };
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
@@ -55,21 +46,8 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Search and Mobile Menu */}
-          <div className="flex items-center space-x-4">
-            {/* Desktop Search */}
-            <form onSubmit={handleSearch} className="relative hidden sm:block">
-              <Input
-                type="text"
-                placeholder="Search news..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-64"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </form>
-
-            {/* Mobile Menu */}
+          {/* Mobile Menu */}
+          <div className="flex items-center">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="sm">
@@ -92,18 +70,6 @@ export function Header() {
                       {item.name}
                     </Link>
                   ))}
-                  
-                  {/* Mobile Search */}
-                  <form onSubmit={handleSearch} className="relative mt-6">
-                    <Input
-                      type="text"
-                      placeholder="Search news..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  </form>
                 </div>
               </SheetContent>
             </Sheet>
