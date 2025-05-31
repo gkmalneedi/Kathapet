@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, Calendar, User, Share2, Heart, MessageCircle } from "lucide-react";
+import { ArrowLeft, Calendar, User, Eye, Facebook, Twitter, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AdSpace } from "@/components/AdSpace";
-import { ArticleCard } from "@/components/ArticleCard";
 import type { ArticleWithCategory } from "@shared/schema";
 
 export default function ArticlePage() {
@@ -112,6 +111,10 @@ export default function ArticlePage() {
                 <Calendar className="h-4 w-4 mr-1" />
                 {timeAgo(article.publishedAt!)}
               </div>
+              <div className="flex items-center">
+                <Eye className="h-4 w-4 mr-1" />
+                {article.views || 0} views
+              </div>
             </div>
           </div>
 
@@ -139,37 +142,41 @@ export default function ArticlePage() {
                   
                   <Separator className="my-8" />
                   
-                  {/* Social Actions */}
+                  {/* Social Sharing */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Button variant="outline" size="sm">
-                        <Heart className="h-4 w-4 mr-2" />
-                        Like
+                    <h3 className="text-lg font-semibold">Share this article</h3>
+                    <div className="flex items-center space-x-3">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')}
+                      >
+                        <Facebook className="h-4 w-4 mr-2" />
+                        Facebook
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Comment
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`, '_blank')}
+                      >
+                        <Twitter className="h-4 w-4 mr-2" />
+                        Twitter
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(article.title + ' ' + window.location.href)}`, '_blank')}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        WhatsApp
                       </Button>
                     </div>
-                    <Button variant="outline" size="sm">
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Comments Section */}
-              <Card className="mt-8">
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold mb-4">Comments</h3>
-                  <div className="text-gray-500 text-center py-8">
-                    <MessageCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>Be the first to comment on this article.</p>
-                    <Button className="mt-4">Add Comment</Button>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Additional Ad Space */}
+              <AdSpace className="mt-8" />
             </div>
 
             {/* Sidebar */}
