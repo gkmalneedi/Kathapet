@@ -21,14 +21,14 @@ export function Header() {
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <img 
               src="/attached_assets/Kathapet v2 copy.png" 
               alt="KathaPet Logo" 
-              className="h-10 w-auto"
+              className="h-8 sm:h-10 w-auto"
             />
           </Link>
 

@@ -31,30 +31,30 @@ export function ArticleCard({ article, showCategory = false }: ArticleCardProps)
           <img
             src={article.imageUrl}
             alt={article.title}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {article.isBreaking && (
-            <Badge className="absolute top-2 left-2 bg-red-600">
+            <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 text-xs">
               Breaking
             </Badge>
           )}
         </div>
-        <CardContent className="p-5">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+        <CardContent className="p-2 sm:p-3 md:p-4 lg:p-5">
+          <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 mb-1 sm:mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
             {article.title}
           </h3>
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+          <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
             {article.excerpt}
           </p>
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center space-x-4">
-              <span>By {article.author}</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 space-y-1 sm:space-y-0">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="truncate">By {article.author}</span>
               <div className="flex items-center space-x-1">
-                <Eye className="h-3 w-3" />
-                <span>{article.views || 0} views</span>
+                <Eye className="h-3 w-3 flex-shrink-0" />
+                <span>{article.views || 0}</span>
               </div>
             </div>
-            <span>{timeAgo(article.publishedAt!)}</span>
+            <span className="text-xs">{timeAgo(article.publishedAt!)}</span>
           </div>
         </CardContent>
       </Link>

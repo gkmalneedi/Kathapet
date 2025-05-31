@@ -33,7 +33,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <HeroCarousel />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8">
         {categories.map((category, index) => (
           <div key={category.id}>
             <CategorySection
@@ -43,14 +43,14 @@ export default function Home() {
             
             {/* Add ad space after every 2 categories */}
             {(index + 1) % 2 === 0 && (
-              <AdSpace className="mb-12" />
+              <AdSpace className="mb-6 sm:mb-8 md:mb-12" />
             )}
           </div>
         ))}
         
         {/* Additional Ad Spaces */}
-        <AdSpace className="mb-8" />
-        <AdSpace size="rectangle" className="mb-8" />
+        <AdSpace className="mb-4 sm:mb-6 md:mb-8" />
+        <AdSpace size="rectangle" className="mb-4 sm:mb-6 md:mb-8" />
       </main>
     </div>
   );
