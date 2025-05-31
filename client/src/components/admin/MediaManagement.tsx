@@ -149,11 +149,11 @@ export function MediaManagement() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('image/')) return '🖼️';
-    if (fileType.startsWith('video/')) return '🎥';
-    if (fileType.startsWith('audio/')) return '🎵';
-    if (fileType.includes('pdf')) return '📄';
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return '🖼️';
+    if (mimeType.startsWith('video/')) return '🎥';
+    if (mimeType.startsWith('audio/')) return '🎵';
+    if (mimeType.includes('pdf')) return '📄';
     return '📁';
   };
 
@@ -309,15 +309,15 @@ export function MediaManagement() {
             <Card key={media.id} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                  {media.fileType?.startsWith('image/') ? (
+                  {media.mimeType?.startsWith('image/') ? (
                     <img 
                       src={media.url} 
-                      alt={media.altText || media.filename}
+                      alt={media.alt || media.filename}
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="text-4xl">
-                      {getFileIcon(media.fileType || '')}
+                      {getFileIcon(media.mimeType || '')}
                     </div>
                   )}
                 </div>
@@ -327,7 +327,7 @@ export function MediaManagement() {
                     {media.filename}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {media.fileSize ? formatFileSize(media.fileSize) : 'Unknown size'}
+                    {media.size ? formatFileSize(media.size) : 'Unknown size'}
                   </p>
                   
                   <div className="flex justify-between items-center mt-3">

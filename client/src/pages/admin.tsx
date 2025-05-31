@@ -10,6 +10,7 @@ import { ArticleManagement } from "@/components/admin/ArticleManagement";
 import { CategoryManagement } from "@/components/admin/CategoryManagement";
 import { PageManagement } from "@/components/admin/PageManagement";
 import { SocialManagement } from "@/components/admin/SocialManagement";
+import { MediaManagement } from "@/components/admin/MediaManagement";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export default function AdminPage() {
@@ -121,15 +122,7 @@ export default function AdminPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <Image className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-lg font-medium mb-2">Media Management</h3>
-                  <p className="text-gray-600 mb-4">Upload and organize your media files</p>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Upload Media
-                  </Button>
-                </div>
+                <MediaManagement />
               </CardContent>
             </Card>
           </TabsContent>
