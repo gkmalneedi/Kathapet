@@ -10,21 +10,21 @@ interface CategorySectionProps {
 
 export function CategorySection({ category, articles }: CategorySectionProps) {
   return (
-    <section id={category.slug} className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 flex items-center">
+    <section id={category.slug} className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-5 md:mb-6 space-y-2 sm:space-y-0">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
           <span 
-            className="w-1 h-8 mr-3"
+            className="w-1 h-6 sm:h-7 md:h-8 mr-2 sm:mr-3"
             style={{ backgroundColor: category.color }}
           ></span>
           {category.name}
         </h2>
         <Link
           href={`/category/${category.slug}`}
-          className="font-semibold flex items-center transition-colors hover:underline"
+          className="text-sm sm:text-base font-semibold flex items-center transition-colors hover:underline self-start sm:self-center"
           style={{ color: category.color }}
         >
-          View All <ArrowRight className="ml-2 h-4 w-4" />
+          View All <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
         </Link>
       </div>
       
