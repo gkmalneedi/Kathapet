@@ -1,10 +1,16 @@
-import { categories, articles, type Category, type Article, type InsertCategory, type InsertArticle, type ArticleWithCategory } from "@shared/schema";
+import { 
+  categories, articles, pages, socialSettings, siteSettings, media,
+  type Category, type Article, type Page, type SocialSetting, type SiteSetting, type Media,
+  type InsertCategory, type InsertArticle, type InsertPage, type InsertSocialSetting, 
+  type InsertSiteSetting, type InsertMedia, type ArticleWithCategory 
+} from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, asc } from "drizzle-orm";
 
 export interface IStorage {
   // Categories
   getCategories(): Promise<Category[]>;
+  getMenuCategories(): Promise<Category[]>;
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: InsertCategory): Promise<Category | undefined>;
@@ -13,6 +19,7 @@ export interface IStorage {
   // Articles
   getArticles(limit?: number, offset?: number, categoryId?: number): Promise<ArticleWithCategory[]>;
   getArticleBySlug(slug: string): Promise<ArticleWithCategory | undefined>;
+  getArticleById(id: number): Promise<ArticleWithCategory | undefined>;
   getArticlesByCategory(categoryId: number, limit?: number, offset?: number): Promise<ArticleWithCategory[]>;
   getFeaturedArticles(limit?: number): Promise<ArticleWithCategory[]>;
   getBreakingNews(limit?: number): Promise<ArticleWithCategory[]>;
@@ -20,11 +27,42 @@ export interface IStorage {
   updateArticle(id: number, article: InsertArticle): Promise<Article | undefined>;
   deleteArticle(id: number): Promise<boolean>;
   getTotalArticlesCount(categoryId?: number): Promise<number>;
+
+  // Pages
+  getPages(): Promise<Page[]>;
+  getPageBySlug(slug: string): Promise<Page | undefined>;
+  getPageById(id: number): Promise<Page | undefined>;
+  createPage(page: InsertPage): Promise<Page>;
+  updatePage(id: number, page: InsertPage): Promise<Page | undefined>;
+  deletePage(id: number): Promise<boolean>;
+
+  // Social Settings
+  getSocialSettings(): Promise<SocialSetting[]>;
+  createSocialSetting(setting: InsertSocialSetting): Promise<SocialSetting>;
+  updateSocialSetting(id: number, setting: InsertSocialSetting): Promise<SocialSetting | undefined>;
+  deleteSocialSetting(id: number): Promise<boolean>;
+
+  // Site Settings
+  getSiteSettings(): Promise<SiteSetting[]>;
+  getSiteSetting(key: string): Promise<SiteSetting | undefined>;
+  createOrUpdateSiteSetting(setting: InsertSiteSetting): Promise<SiteSetting>;
+
+  // Media
+  getMedia(): Promise<Media[]>;
+  getMediaById(id: number): Promise<Media | undefined>;
+  createMedia(media: InsertMedia): Promise<Media>;
+  deleteMedia(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
   async getCategories(): Promise<Category[]> {
-    return await db.select().from(categories);
+    return await db.select().from(categories).orderBy(asc(categories.sortOrder));
+  }
+
+  async getMenuCategories(): Promise<Category[]> {
+    return await db.select().from(categories)
+      .where(eq(categories.showInMenu, true))
+      .orderBy(asc(categories.sortOrder));
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {
