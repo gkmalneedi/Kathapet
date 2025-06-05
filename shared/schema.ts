@@ -1,3 +1,4 @@
+
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -45,12 +46,12 @@ export const pages = pgTable("pages", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Social media settings
+// Social media settings - fixed schema to use iconClass
 export const socialSettings = pgTable("social_settings", {
   id: serial("id").primaryKey(),
   platform: text("platform").notNull().unique(), // facebook, twitter, instagram, etc.
   url: text("url").notNull(),
-  icon: text("icon").notNull(),
+  iconClass: text("icon_class").notNull(), // Changed from icon to iconClass
   isEnabled: boolean("is_enabled").default(true),
   sortOrder: integer("sort_order").default(0),
 });

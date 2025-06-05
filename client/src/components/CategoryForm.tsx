@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiRequest } from "@/lib/queryClient";
 import { insertCategorySchema } from "@shared/schema";
 import type { Category, InsertCategory } from "@shared/schema";
 import { z } from "zod";
@@ -38,21 +37,23 @@ export function CategoryForm({ category, onClose, onSuccess }: CategoryFormProps
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertCategory) => {
-      return apiRequest("/api/categories", {
+      const response = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      return response.json();
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertCategory) => {
-      return apiRequest(`/api/categories/${category?.id}`, {
+      const response = await fetch(`/api/categories/${category?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      return response.json();
     },
   });
 
@@ -176,6 +177,7 @@ export function CategoryForm({ category, onClose, onSuccess }: CategoryFormProps
                         placeholder="Brief description of the category"
                         className="min-h-[100px]"
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />

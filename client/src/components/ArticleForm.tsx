@@ -49,21 +49,23 @@ export function ArticleForm({ article, categories, onClose, onSuccess }: Article
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertArticle) => {
-      return apiRequest("/api/articles", {
+      const response = await fetch("/api/articles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      return response.json();
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertArticle) => {
-      return apiRequest(`/api/articles/${article?.id}`, {
+      const response = await fetch(`/api/articles/${article?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      return response.json();
     },
   });
 
@@ -238,7 +240,7 @@ export function ArticleForm({ article, categories, onClose, onSuccess }: Article
                         <FormItem className="flex items-center space-x-2">
                           <FormControl>
                             <Switch
-                              checked={field.value}
+                              checked={field.value || false}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
@@ -254,7 +256,7 @@ export function ArticleForm({ article, categories, onClose, onSuccess }: Article
                         <FormItem className="flex items-center space-x-2">
                           <FormControl>
                             <Switch
-                              checked={field.value}
+                              checked={field.value || false}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>

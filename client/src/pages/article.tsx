@@ -1,4 +1,5 @@
 
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { ArrowLeft, Calendar, User, Eye, Facebook, Twitter, MessageSquare } from "lucide-react";
@@ -104,7 +105,7 @@ export default function ArticlePage() {
   };
 
   // Generate OG tags when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     generateOGTags();
   }, []);
 
