@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, Newspaper } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -40,8 +41,8 @@ export function Header() {
                 href={item.href}
                 className={`font-medium transition-colors ${
                   location === item.href
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                    ? "text-[#efbf04]"
+                    : "text-gray-700 hover:text-[#efbf04]"
                 }`}
               >
                 {item.name}
@@ -53,7 +54,11 @@ export function Header() {
           <div className="flex items-center">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="hover:bg-[#efbf04] hover:text-white"
+                >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
@@ -66,8 +71,8 @@ export function Header() {
                       onClick={() => setIsOpen(false)}
                       className={`text-lg font-medium transition-colors ${
                         location === item.href
-                          ? "text-blue-600"
-                          : "text-gray-700 hover:text-blue-600"
+                          ? "text-[#efbf04]"
+                          : "text-gray-700 hover:text-[#efbf04]"
                       }`}
                     >
                       {item.name}
