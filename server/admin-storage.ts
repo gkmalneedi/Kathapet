@@ -43,7 +43,7 @@ export class AdminStorage {
 
   async deleteCategory(id: number): Promise<boolean> {
     const result = await db.delete(categories).where(eq(categories.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Articles
@@ -140,7 +140,7 @@ export class AdminStorage {
 
   async deleteArticle(id: number): Promise<boolean> {
     const result = await db.delete(articles).where(eq(articles.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Pages
@@ -177,7 +177,7 @@ export class AdminStorage {
 
   async deletePage(id: number): Promise<boolean> {
     const result = await db.delete(pages).where(eq(pages.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Social Settings
@@ -204,7 +204,7 @@ export class AdminStorage {
 
   async deleteSocialSetting(id: number): Promise<boolean> {
     const result = await db.delete(socialSettings).where(eq(socialSettings.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Site Settings
@@ -256,7 +256,7 @@ export class AdminStorage {
 
   async deleteMedia(id: number): Promise<boolean> {
     const result = await db.delete(media).where(eq(media.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 

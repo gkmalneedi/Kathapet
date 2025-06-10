@@ -78,6 +78,20 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
+  async updateCategory(id: number, insertCategory: InsertCategory): Promise<Category | undefined> {
+    const [category] = await db
+      .update(categories)
+      .set(insertCategory)
+      .where(eq(categories.id, id))
+      .returning();
+    return category || undefined;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    const result = await db.delete(categories).where(eq(categories.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
   async getArticles(limit = 50, offset = 0, categoryId?: number): Promise<ArticleWithCategory[]> {
     let query = db
       .select({
@@ -89,8 +103,12 @@ export class DatabaseStorage implements IStorage {
         imageUrl: articles.imageUrl,
         categoryId: articles.categoryId,
         author: articles.author,
+        views: articles.views,
         isBreaking: articles.isBreaking,
         isFeatured: articles.isFeatured,
+        language: articles.language,
+        seoTitle: articles.seoTitle,
+        seoDescription: articles.seoDescription,
         publishedAt: articles.publishedAt,
         createdAt: articles.createdAt,
         category: {
@@ -99,6 +117,8 @@ export class DatabaseStorage implements IStorage {
           slug: categories.slug,
           color: categories.color,
           description: categories.description,
+          showInMenu: categories.showInMenu,
+          sortOrder: categories.sortOrder,
         },
       })
       .from(articles)
@@ -111,7 +131,7 @@ export class DatabaseStorage implements IStorage {
       query = query.where(eq(articles.categoryId, categoryId));
     }
 
-    return await query;
+    return await query as ArticleWithCategory[];
   }
 
   async getArticleBySlug(slug: string): Promise<ArticleWithCategory | undefined> {
@@ -125,8 +145,12 @@ export class DatabaseStorage implements IStorage {
         imageUrl: articles.imageUrl,
         categoryId: articles.categoryId,
         author: articles.author,
+        views: articles.views,
         isBreaking: articles.isBreaking,
         isFeatured: articles.isFeatured,
+        language: articles.language,
+        seoTitle: articles.seoTitle,
+        seoDescription: articles.seoDescription,
         publishedAt: articles.publishedAt,
         createdAt: articles.createdAt,
         category: {
@@ -135,13 +159,51 @@ export class DatabaseStorage implements IStorage {
           slug: categories.slug,
           color: categories.color,
           description: categories.description,
+          showInMenu: categories.showInMenu,
+          sortOrder: categories.sortOrder,
         },
       })
       .from(articles)
       .innerJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(articles.slug, slug));
 
-    return result || undefined;
+    return result as ArticleWithCategory || undefined;
+  }
+
+  async getArticleById(id: number): Promise<ArticleWithCategory | undefined> {
+    const [result] = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        content: articles.content,
+        imageUrl: articles.imageUrl,
+        categoryId: articles.categoryId,
+        author: articles.author,
+        views: articles.views,
+        isBreaking: articles.isBreaking,
+        isFeatured: articles.isFeatured,
+        language: articles.language,
+        seoTitle: articles.seoTitle,
+        seoDescription: articles.seoDescription,
+        publishedAt: articles.publishedAt,
+        createdAt: articles.createdAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          color: categories.color,
+          description: categories.description,
+          showInMenu: categories.showInMenu,
+          sortOrder: categories.sortOrder,
+        },
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .where(eq(articles.id, id));
+
+    return result as ArticleWithCategory || undefined;
   }
 
   async getArticlesByCategory(categoryId: number, limit = 50, offset = 0): Promise<ArticleWithCategory[]> {
@@ -159,8 +221,12 @@ export class DatabaseStorage implements IStorage {
         imageUrl: articles.imageUrl,
         categoryId: articles.categoryId,
         author: articles.author,
+        views: articles.views,
         isBreaking: articles.isBreaking,
         isFeatured: articles.isFeatured,
+        language: articles.language,
+        seoTitle: articles.seoTitle,
+        seoDescription: articles.seoDescription,
         publishedAt: articles.publishedAt,
         createdAt: articles.createdAt,
         category: {
@@ -169,13 +235,15 @@ export class DatabaseStorage implements IStorage {
           slug: categories.slug,
           color: categories.color,
           description: categories.description,
+          showInMenu: categories.showInMenu,
+          sortOrder: categories.sortOrder,
         },
       })
       .from(articles)
       .innerJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(articles.isFeatured, true))
       .orderBy(desc(articles.publishedAt))
-      .limit(limit);
+      .limit(limit) as ArticleWithCategory[];
   }
 
   async getBreakingNews(limit = 3): Promise<ArticleWithCategory[]> {
@@ -189,8 +257,12 @@ export class DatabaseStorage implements IStorage {
         imageUrl: articles.imageUrl,
         categoryId: articles.categoryId,
         author: articles.author,
+        views: articles.views,
         isBreaking: articles.isBreaking,
         isFeatured: articles.isFeatured,
+        language: articles.language,
+        seoTitle: articles.seoTitle,
+        seoDescription: articles.seoDescription,
         publishedAt: articles.publishedAt,
         createdAt: articles.createdAt,
         category: {
@@ -199,13 +271,15 @@ export class DatabaseStorage implements IStorage {
           slug: categories.slug,
           color: categories.color,
           description: categories.description,
+          showInMenu: categories.showInMenu,
+          sortOrder: categories.sortOrder,
         },
       })
       .from(articles)
       .innerJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(articles.isBreaking, true))
       .orderBy(desc(articles.publishedAt))
-      .limit(limit);
+      .limit(limit) as ArticleWithCategory[];
   }
 
   async createArticle(insertArticle: InsertArticle): Promise<Article> {
@@ -214,31 +288,6 @@ export class DatabaseStorage implements IStorage {
       .values(insertArticle)
       .returning();
     return article;
-  }
-
-  async getTotalArticlesCount(categoryId?: number): Promise<number> {
-    let query = db.select().from(articles);
-    
-    if (categoryId) {
-      query = query.where(eq(articles.categoryId, categoryId));
-    }
-    
-    const result = await query;
-    return result.length;
-  }
-
-  async updateCategory(id: number, insertCategory: InsertCategory): Promise<Category | undefined> {
-    const [category] = await db
-      .update(categories)
-      .set(insertCategory)
-      .where(eq(categories.id, id))
-      .returning();
-    return category || undefined;
-  }
-
-  async deleteCategory(id: number): Promise<boolean> {
-    const result = await db.delete(categories).where(eq(categories.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
   }
 
   async updateArticle(id: number, insertArticle: InsertArticle): Promise<Article | undefined> {
@@ -252,6 +301,133 @@ export class DatabaseStorage implements IStorage {
 
   async deleteArticle(id: number): Promise<boolean> {
     const result = await db.delete(articles).where(eq(articles.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async getTotalArticlesCount(categoryId?: number): Promise<number> {
+    let query = db.select().from(articles);
+    
+    if (categoryId) {
+      query = query.where(eq(articles.categoryId, categoryId));
+    }
+    
+    const result = await query;
+    return result.length;
+  }
+
+  // Pages
+  async getPages(): Promise<Page[]> {
+    return await db.select().from(pages).orderBy(desc(pages.createdAt));
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const [page] = await db.select().from(pages).where(eq(pages.slug, slug));
+    return page || undefined;
+  }
+
+  async getPageById(id: number): Promise<Page | undefined> {
+    const [page] = await db.select().from(pages).where(eq(pages.id, id));
+    return page || undefined;
+  }
+
+  async createPage(insertPage: InsertPage): Promise<Page> {
+    const [page] = await db
+      .insert(pages)
+      .values(insertPage)
+      .returning();
+    return page;
+  }
+
+  async updatePage(id: number, insertPage: InsertPage): Promise<Page | undefined> {
+    const [page] = await db
+      .update(pages)
+      .set({ ...insertPage, updatedAt: new Date() })
+      .where(eq(pages.id, id))
+      .returning();
+    return page || undefined;
+  }
+
+  async deletePage(id: number): Promise<boolean> {
+    const result = await db.delete(pages).where(eq(pages.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Social Settings
+  async getSocialSettings(): Promise<SocialSetting[]> {
+    return await db.select().from(socialSettings).orderBy(asc(socialSettings.sortOrder));
+  }
+
+  async createSocialSetting(setting: InsertSocialSetting): Promise<SocialSetting> {
+    const [socialSetting] = await db
+      .insert(socialSettings)
+      .values(setting)
+      .returning();
+    return socialSetting;
+  }
+
+  async updateSocialSetting(id: number, setting: InsertSocialSetting): Promise<SocialSetting | undefined> {
+    const [socialSetting] = await db
+      .update(socialSettings)
+      .set(setting)
+      .where(eq(socialSettings.id, id))
+      .returning();
+    return socialSetting || undefined;
+  }
+
+  async deleteSocialSetting(id: number): Promise<boolean> {
+    const result = await db.delete(socialSettings).where(eq(socialSettings.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Site Settings
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    return await db.select().from(siteSettings);
+  }
+
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    const [setting] = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return setting || undefined;
+  }
+
+  async createOrUpdateSiteSetting(setting: InsertSiteSetting): Promise<SiteSetting> {
+    const existing = await this.getSiteSetting(setting.key);
+    
+    if (existing) {
+      const [updated] = await db
+        .update(siteSettings)
+        .set({ value: setting.value, type: setting.type, description: setting.description })
+        .where(eq(siteSettings.key, setting.key))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(siteSettings)
+        .values(setting)
+        .returning();
+      return created;
+    }
+  }
+
+  // Media
+  async getMedia(): Promise<Media[]> {
+    return await db.select().from(media).orderBy(desc(media.uploadedAt));
+  }
+
+  async getMediaById(id: number): Promise<Media | undefined> {
+    const [mediaItem] = await db.select().from(media).where(eq(media.id, id));
+    return mediaItem || undefined;
+  }
+
+  async createMedia(mediaData: InsertMedia): Promise<Media> {
+    const [mediaItem] = await db
+      .insert(media)
+      .values(mediaData)
+      .returning();
+    return mediaItem;
+  }
+
+  async deleteMedia(id: number): Promise<boolean> {
+    const result = await db.delete(media).where(eq(media.id, id));
     return result.rowCount !== null && result.rowCount > 0;
   }
 }
@@ -289,7 +465,9 @@ export class MemStorage implements IStorage {
         name: cat.name,
         slug: cat.slug,
         color: cat.color,
-        description: cat.description
+        description: cat.description,
+        showInMenu: true,
+        sortOrder: 0,
       };
       this.categories.set(category.id, category);
     });
@@ -501,25 +679,61 @@ export class MemStorage implements IStorage {
         isBreaking: articleData.isBreaking || false,
         isFeatured: articleData.isFeatured || false,
         publishedAt: articleData.publishedAt,
-        createdAt: now
+        createdAt: now,
+        views: 0,
+        language: "en",
+        seoTitle: null,
+        seoDescription: null,
       };
       this.articles.set(id, article);
     });
   }
 
   async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    return Array.from(this.categories.values()).map(cat => ({
+      ...cat,
+      showInMenu: cat.showInMenu ?? true,
+      sortOrder: cat.sortOrder ?? 0,
+    }));
+  }
+
+  async getMenuCategories(): Promise<Category[]> {
+    return this.getCategories();
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    return Array.from(this.categories.values()).find(cat => cat.slug === slug);
+    const cat = Array.from(this.categories.values()).find(cat => cat.slug === slug);
+    return cat ? { ...cat, showInMenu: cat.showInMenu ?? true, sortOrder: cat.sortOrder ?? 0 } : undefined;
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
     const id = this.currentCategoryId++;
-    const category: Category = { ...insertCategory, id };
+    const category: Category = { 
+      ...insertCategory, 
+      id,
+      showInMenu: insertCategory.showInMenu ?? true,
+      sortOrder: insertCategory.sortOrder ?? 0,
+    };
     this.categories.set(id, category);
     return category;
+  }
+
+  async updateCategory(id: number, insertCategory: InsertCategory): Promise<Category | undefined> {
+    const existing = this.categories.get(id);
+    if (!existing) return undefined;
+    
+    const updated: Category = { 
+      ...existing, 
+      ...insertCategory,
+      showInMenu: insertCategory.showInMenu ?? existing.showInMenu ?? true,
+      sortOrder: insertCategory.sortOrder ?? existing.sortOrder ?? 0,
+    };
+    this.categories.set(id, updated);
+    return updated;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    return this.categories.delete(id);
   }
 
   async getArticles(limit = 50, offset = 0, categoryId?: number): Promise<ArticleWithCategory[]> {
@@ -541,6 +755,16 @@ export class MemStorage implements IStorage {
 
   async getArticleBySlug(slug: string): Promise<ArticleWithCategory | undefined> {
     const article = Array.from(this.articles.values()).find(a => a.slug === slug);
+    if (!article) return undefined;
+    
+    return {
+      ...article,
+      category: this.categories.get(article.categoryId)!
+    };
+  }
+
+  async getArticleById(id: number): Promise<ArticleWithCategory | undefined> {
+    const article = this.articles.get(id);
     if (!article) return undefined;
     
     return {
@@ -592,10 +816,34 @@ export class MemStorage implements IStorage {
       isBreaking: insertArticle.isBreaking || false,
       isFeatured: insertArticle.isFeatured || false,
       publishedAt: now,
-      createdAt: now
+      createdAt: now,
+      views: 0,
+      language: "en",
+      seoTitle: null,
+      seoDescription: null,
     };
     this.articles.set(id, article);
     return article;
+  }
+
+  async updateArticle(id: number, insertArticle: InsertArticle): Promise<Article | undefined> {
+    const existing = this.articles.get(id);
+    if (!existing) return undefined;
+
+    const updated: Article = {
+      ...existing,
+      ...insertArticle,
+      views: existing.views ?? 0,
+      language: insertArticle.language ?? existing.language ?? "en",
+      seoTitle: insertArticle.seoTitle ?? existing.seoTitle ?? null,
+      seoDescription: insertArticle.seoDescription ?? existing.seoDescription ?? null,
+    };
+    this.articles.set(id, updated);
+    return updated;
+  }
+
+  async deleteArticle(id: number): Promise<boolean> {
+    return this.articles.delete(id);
   }
 
   async getTotalArticlesCount(categoryId?: number): Promise<number> {
@@ -603,6 +851,78 @@ export class MemStorage implements IStorage {
       return Array.from(this.articles.values()).filter(article => article.categoryId === categoryId).length;
     }
     return this.articles.size;
+  }
+
+  // Pages
+  async getPages(): Promise<Page[]> {
+    return []; // No pages in memory storage for now
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    return undefined;
+  }
+
+  async getPageById(id: number): Promise<Page | undefined> {
+    return undefined;
+  }
+
+  async createPage(page: InsertPage): Promise<Page> {
+    throw new Error("Pages not implemented in memory storage");
+  }
+
+  async updatePage(id: number, page: InsertPage): Promise<Page | undefined> {
+    throw new Error("Pages not implemented in memory storage");
+  }
+
+  async deletePage(id: number): Promise<boolean> {
+    return false;
+  }
+
+  // Social Settings
+  async getSocialSettings(): Promise<SocialSetting[]> {
+    return [];
+  }
+
+  async createSocialSetting(setting: InsertSocialSetting): Promise<SocialSetting> {
+    throw new Error("Social settings not implemented in memory storage");
+  }
+
+  async updateSocialSetting(id: number, setting: InsertSocialSetting): Promise<SocialSetting | undefined> {
+    throw new Error("Social settings not implemented in memory storage");
+  }
+
+  async deleteSocialSetting(id: number): Promise<boolean> {
+    return false;
+  }
+
+  // Site Settings
+  async getSiteSettings(): Promise<SiteSetting[]> {
+    return [];
+  }
+
+  async getSiteSetting(key: string): Promise<SiteSetting | undefined> {
+    return undefined;
+  }
+
+  async createOrUpdateSiteSetting(setting: InsertSiteSetting): Promise<SiteSetting> {
+    throw new Error("Site settings not implemented in memory storage");
+  }
+
+  // Media
+  async getMedia(): Promise<Media[]> {
+    return [];
+  }
+
+  async getMediaById(id: number): Promise<Media | undefined> {
+    return undefined;
+  }
+
+  async createMedia(media: InsertMedia): Promise<Media> {
+    throw new Error("Media not implemented in memory storage");
+  }
+
+  async deleteMedia(id: number): Promise<boolean> {
+    return false;
   }
 }
 
